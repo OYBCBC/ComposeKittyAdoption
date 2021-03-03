@@ -15,50 +15,127 @@
  */
 package com.example.androiddevchallenge
 
-import android.graphics.BitmapFactory
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModelProvider
 import com.example.androiddevchallenge.base.BaseActivity
 import com.example.androiddevchallenge.ui.theme.MyTheme
-import java.util.*
 
 class MainActivity : BaseActivity() {
+
+    private val viewModel by lazy {
+        ViewModelProvider(this, MainViewModelFactory()).get(MainViewModel::class.java)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyTheme {
-                MyApp()
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = getString(R.string.app_name),
+                                    color = MaterialTheme.colors.onPrimary,
+                                    fontSize = 14.sp
+                                )
+                            },
+                            backgroundColor = MaterialTheme.colors.primaryVariant,
+                            elevation = 0.dp
+                        )
+                    }
+                ) {
+                    Surface(color = MaterialTheme.colors.background) {
+                        showList(kittiesLiveData = viewModel.kittiesLiveData) { _, kitty ->
+                            val intent = Intent(this@MainActivity, KittyDetailActivity::class.java)
+                            val bundle = Bundle()
+                            bundle.putParcelable("kitty", kitty)
+                            intent.putExtra("bundle", bundle)
+                            startActivity(intent)
+                        }
+                    }
+                }
+            }
+        }
+        viewModel.parseData()
+    }
+}
+
+@Composable
+fun showList(
+    kittiesLiveData: LiveData<Result<List<Kitty>>>,
+    onClick: (pos: Int, kitty: Kitty) -> Unit
+) {
+    val result by kittiesLiveData.observeAsState()
+    result?.let {
+        when (it.status) {
+            Result.SUCCESS -> {
+                it.data?.let {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    ) {
+                        LazyColumn(Modifier.fillMaxWidth()) {
+                            itemsIndexed(it) { index, kitty ->
+                                Box(Modifier.padding(horizontal = 15.dp, vertical = 10.dp)) {
+                                    AdoptionBox(position = index, info = kitty, onClick = onClick)
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+            Result.LOADING -> {
+                loadingProgress()
+            }
+            else -> {
+                Toast.makeText(MyApplication.context, it.msg, Toast.LENGTH_LONG).show()
+
             }
         }
     }
 }
 
-// Start building your app here!
 @Composable
-fun MyApp() {
-    var info = Adoptable("中华田园猫", Date(), "生性好动，右眼眼球缺失", listOf("经济条件允许", "住房处有窗、阳台需愿意封窗，网阳台"), listOf())
-    Scaffold {
-
-        Surface(color = MaterialTheme.colors.background) {
-            Column {
-//                Text(text = "Ready... Set... GO!")
-            }
-            AdoptionBox(info = info)
-        }
+fun loadingProgress() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(
+                15.dp
+            )
+            .background(Color.White),
+        contentAlignment = Alignment.Center
+    )
+    {
+        CircularProgressIndicator(color = MaterialTheme.colors.primary)
     }
 }
 
@@ -66,36 +143,81 @@ fun MyApp() {
  * 领养item布局
  */
 @Composable
-fun AdoptionBox(info: Adoptable) {
-    Box(modifier = Modifier
-        .background(color = MaterialTheme.colors.primary)
-        .padding(15.dp)) {
-        Column() {
-            Text(color = MaterialTheme.colors.onPrimary, text = info.category)
-            Text(color = MaterialTheme.colors.onPrimary, text = info.birthDate.format())
-            Text(color = MaterialTheme.colors.onPrimary, text = info.description)
-
-            Column(modifier = Modifier.background(MaterialTheme.colors.primary.alpha(0.5f))) {
-                info.adoptionRequirement.forEach {
-                    Text(color = MaterialTheme.colors.onPrimary, text = it)
-                }
+fun AdoptionBox(position: Int, info: Kitty, onClick: (pos: Int, kitty: Kitty) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(position, info) },
+        elevation = 4.dp,
+    ) {
+        val imgId = MyApplication.context.resources.getIdentifier(
+            info.img, "drawable",
+            MyApplication.context.packageName
+        )
+        val image: Painter = painterResource(imgId)
+        Column(modifier = Modifier.fillMaxHeight()) {
+            Box(contentAlignment = Alignment.BottomCenter) {
+                Image(
+                    painter = image,
+                    contentDescription = info.name,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .requiredHeight(220.dp)
+                )
+                NameText(info.name)
             }
-
-            Row {
-                info.imgList.forEach {
-
-                }
-            }
+            DescriptionText(info.introduction)
+//            Column(modifier = Modifier
+//                .background(MaterialTheme.colors.primary.alpha(0.5f))
+//                .fillMaxWidth()) {
+//                requirementsNote(list = info.adoptionRequirements)
+//            }
 
         }
     }
 }
 
+@Composable
+fun NameText(name: String) {
+    Box(
+        modifier =
+        Modifier
+            .background(color = MaterialTheme.colors.onPrimary.alpha(0.5f))
+            .fillMaxWidth()
+            .padding(0.dp, 5.dp), contentAlignment = Alignment.BottomCenter
+    ) {
+        Text(
+            text = name,
+            color = MaterialTheme.colors.onPrimary,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+fun DescriptionText(introduction: String) {
+    Text(modifier = Modifier.padding(top = 6.dp, bottom = 6.dp, start = 15.dp), text = introduction, color = MaterialTheme.colors.onBackground, fontSize = 14.sp)
+}
+
+@Composable
+fun requirementsNote(list: List<String>) {
+    list.forEachIndexed { index, s ->
+        Text(
+            color = MaterialTheme.colors.onPrimary,
+            text = "${index + 1}. $s",
+            fontWeight = FontWeight.Thin
+        )
+    }
+}
+
+
 @Preview("Light Theme", widthDp = 360, heightDp = 640)
 @Composable
 fun LightPreview() {
     MyTheme {
-        MyApp()
+        MyApplication()
     }
 }
 
@@ -103,6 +225,6 @@ fun LightPreview() {
 @Composable
 fun DarkPreview() {
     MyTheme(darkTheme = true) {
-        MyApp()
+        MyApplication()
     }
 }

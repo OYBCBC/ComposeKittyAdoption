@@ -1,0 +1,9 @@
+[
+  {"name":"李元芳","introduction":"长得像王者荣耀李元芳的猫咪，超级害羞","img":"liyuanfang","adopted":false,"adoptionRequirements":["住处需要封窗","有阳台需要拦网"]},
+  {"name":"贝基","introduction":"是只风流猫,得过膀胱炎,但依旧不影响他的可爱","img":"beky","adopted":false,"adoptionRequirements":["住处需要封窗","有阳台需要拦网","有过养猫经验", "经济条件允许(膀胱炎需要治疗)"]},
+  {"name":"奶牛","introduction":"长得像奶牛的猫咪,建议和黑白边牧搭配","img":"milky","adopted":true,"adoptionRequirements":["住处需要封窗","有阳台需要拦网"]},
+  {"name":"小橘","introduction":"可爱的田园小橘猫!小心被萌到","img":"orange","adopted":false,"adoptionRequirements":["住处需要封窗","有阳台需要拦网", "最好有其他小猫一块养"]},
+  {"name":"欧机","introduction":"可怜的折耳猫(不能继续繁衍),傻头傻脑,喜欢睡电脑上,听话且粘人","img":"ouji","adopted":false,"adoptionRequirements":["住处需要封窗","有阳台需要拦网","有养猫经验", "清楚了解猫咪软骨症"]}
+
+
+]
