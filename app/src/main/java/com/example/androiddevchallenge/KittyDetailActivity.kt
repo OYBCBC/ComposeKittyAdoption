@@ -109,9 +109,11 @@ class KittyDetailActivity : BaseActivity() {
     fun detailIntroduction(introduction: String) {
         Box(Modifier.background(Color.Gray, shape = RectangleShape)) {
             Text(
+                modifier = Modifier.padding(horizontal = 15.dp),
                 text = introduction,
                 fontSize = 18.sp,
-                style = MaterialTheme.typography.body1
+                style = MaterialTheme.typography.body1,
+                color = MaterialTheme.colors.onPrimary
             )
         }
     }
