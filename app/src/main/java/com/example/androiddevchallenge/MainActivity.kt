@@ -24,19 +24,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Scaffold
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.Text
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -120,14 +120,12 @@ fun showList(
                         }
                     }
                 }
-
             }
             Result.LOADING -> {
                 loadingProgress()
             }
             else -> {
                 Toast.makeText(MyApplication.context, it.msg, Toast.LENGTH_LONG).show()
-
             }
         }
     }
@@ -144,8 +142,7 @@ fun loadingProgress() {
             )
             .background(Color.White),
         contentAlignment = Alignment.Center
-    )
-    {
+    ) {
         CircularProgressIndicator(color = MaterialTheme.colors.primary)
     }
 }
@@ -184,7 +181,6 @@ fun AdoptionBox(position: Int, info: Kitty, onClick: (pos: Int, kitty: Kitty) ->
 //                .fillMaxWidth()) {
 //                requirementsNote(list = info.adoptionRequirements)
 //            }
-
         }
     }
 }
@@ -196,7 +192,8 @@ fun NameText(name: String) {
         Modifier
             .background(color = MaterialTheme.colors.onPrimary.alpha(0.5f))
             .fillMaxWidth()
-            .padding(0.dp, 5.dp), contentAlignment = Alignment.BottomCenter
+            .padding(0.dp, 5.dp),
+        contentAlignment = Alignment.BottomCenter
     ) {
         Text(
             text = name,
@@ -222,7 +219,6 @@ fun requirementsNote(list: List<String>) {
         )
     }
 }
-
 
 @Preview("Light Theme", widthDp = 360, heightDp = 640)
 @Composable
